@@ -1,0 +1,12 @@
+name: Brug1D
+title: Brug1D
+username: sweco
+account: sweco
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14246774
+bundleId: 9961977
+url: https://sweco.shinyapps.io/Brug1D/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
