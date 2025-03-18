@@ -178,7 +178,7 @@ ui <- fluidPage(
                      downloadButton("downloadResults", "Download Results")
             ),
             tabPanel("Documentation",
-                     includeHTML("Readme.html")
+                     #shiny::includeHTML("Readme.html")
             )
       )
 )
