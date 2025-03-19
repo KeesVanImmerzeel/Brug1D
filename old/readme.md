@@ -1,3 +1,8 @@
+---
+title: Brug1D
+output: html_fragment
+---
+
 # Simulate time-dependent head and flow in a semi-infinite aquifer adjacent to open water.
 
 C.H. van Immerzeel

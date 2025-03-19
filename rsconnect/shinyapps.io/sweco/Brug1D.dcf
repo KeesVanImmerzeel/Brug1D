@@ -5,8 +5,9 @@ account: sweco
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14274913
-bundleId: 9964125
+bundleId: 9969600
 url: https://sweco.shinyapps.io/Brug1D/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: Doc/grafieken.png
