@@ -33,7 +33,8 @@ Be aware that exotic input values may lead to numerical instability. In that cas
 ## References
 - Olsthoorn, T.N. (2006). Van Edelman naar Bruggeman. Stromingen 12 (2006) nummer 1, blz. 5-12. 
   <https://edepot.wur.nl/13730>
-  
+- Veling, E.J.M. (2006). Over de erfc-functie in ‘Van Edelman naar Bruggeman'. Stromingen 12 (2006) nummer 2, blz. 56-57. <https://www.nhv.nu/wp-content/uploads/2020/06/2006-2_brieven.pdf>
+- <http://www.grondwaterformules.nl/index.php/formules/waterloop/peilverandering>  
   
 ## Van Edelman naar Bruggeman
 
