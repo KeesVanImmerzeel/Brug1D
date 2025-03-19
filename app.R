@@ -11,6 +11,7 @@ library(shinyBS)
 library(pracma)
 library(ggplot2)
 library(dplyr)
+library(plotly)
 
 #' Calculate the argument in the complementary error function in the Bruggeman formula
 #'
@@ -92,8 +93,8 @@ plot_stress_response_s <- function(df) {
                            "3" = paste("Change in head s: Infiltration at x = 0 increases at a constant rate a=", df$a[1], "[L2/T]"),
                            paste("Unknown stress change"))
       
-      ggplot(df, aes(x = x, y = s, color = factor(t))) +
-            geom_line(linewidth = 1.5) +
+      p <- ggplot(df, aes(x = x, y = s, color = factor(t))) +
+            geom_line(linewidth = 1) +
             labs(title = title_text,
                  x = "Distance from the river [L]",
                  y = "Change in head s [L]",
@@ -105,6 +106,7 @@ plot_stress_response_s <- function(df) {
                   legend.title = element_text(size = 16, margin = margin(b = 20)),
                   panel.border = element_rect(color = "black", fill = NA, size = 0.5),
                   legend.box.background = element_rect(color = "black", size = 0.5))
+      plotly::ggplotly(p)
 }
 
 #' Plot the horizontal flux change q [L2/T] for different time points t
@@ -120,8 +122,8 @@ plot_stress_response_q <- function(df) {
                            "3" = paste("Horizontal flux change q [L2/T]: Infiltration at x = 0 increases at a constant rate a=", df$a[1], "[L2/T]"),
                            paste("Unknown stress change"))
       
-      ggplot(df, aes(x = x, y = q, color = factor(t))) +
-            geom_line(linewidth = 1.5) +
+      p <- ggplot(df, aes(x = x, y = q, color = factor(t))) +
+            geom_line(linewidth = 1) +
             labs(title = title_text,
                  x = "Distance from the river [L]",
                  y = "Horizontal flux change q [L2/T]",
@@ -133,6 +135,7 @@ plot_stress_response_q <- function(df) {
                   legend.title = element_text(size = 16, margin = margin(b = 20)),
                   panel.border = element_rect(color = "black", fill = NA, size = 0.5),
                   legend.box.background = element_rect(color = "black", size = 0.5))
+      plotly::ggplotly(p)
 }
 
 # Define UI for the Shiny app
@@ -169,8 +172,8 @@ ui <- fluidPage(
                                  tags$a(href = "https://github.com/KeesVanImmerzeel/Brug1D/tree/master", "Documentation")
                            ),
                            mainPanel(
-                                 plotOutput("stressPlotS"),
-                                 plotOutput("stressPlotQ")
+                                 plotly::plotlyOutput("stressPlotS"),
+                                 plotly::plotlyOutput("stressPlotQ")
                            )
                      )
             ),
@@ -191,11 +194,11 @@ server <- function(input, output, session) {
             
             result(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
             
-            output$stressPlotS <- renderPlot({
+            output$stressPlotS <- renderPlotly({
                   plot_stress_response_s(result())
             })
             
-            output$stressPlotQ <- renderPlot({
+            output$stressPlotQ <- renderPlotly({
                   plot_stress_response_q(result())
             })
             
