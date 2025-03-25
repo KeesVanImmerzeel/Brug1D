@@ -224,7 +224,7 @@ server <- function(input, output, session) {
                         min_t = input$min_t,
                         max_t = input$max_t
                   )
-                  write.csv(input_data, file, row.names = FALSE)
+                  write.csv2(input_data, file, quote=FALSE, row.names = FALSE)
             }
       )
       
@@ -233,7 +233,7 @@ server <- function(input, output, session) {
                   paste("results-", Sys.Date(), ".csv", sep = "")
             },
             content = function(file) {
-                  write.csv(result(), file, row.names = FALSE)
+                  write.csv2(result(), file, quote=FALSE, row.names = FALSE)
             }
       )
       
