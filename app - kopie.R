@@ -86,7 +86,6 @@ calc_stress_response <- function(x, t, S, kD, n, a) {
 #' @example plot_stress_response_s(df = result_calc_stress_response_n0)
 #' @return A ggplot object
 plot_stress_response_s <- function(df) {
-      # Generate the title text based on the type of stress change
       title_text <- switch(as.character(df$n[1]),
                            "0" = paste("Change in head s: River stage changes suddenly with a fixed value a=", df$a[1], "[L]"),
                            "1" = paste("Change in head s: Constant infiltration a=", df$a[1], "[L2/T] starts at x = 0"),
@@ -94,36 +93,19 @@ plot_stress_response_s <- function(df) {
                            "3" = paste("Change in head s: Infiltration at x = 0 increases at a constant rate a=", df$a[1], "[L2/T]"),
                            paste("Unknown stress change"))
       
-      # Check the number of unique x values
-      if (length(unique(df$x)) == 1) {
-            # Plot s versus t if there is only one unique x value
-            p <- ggplot(df, aes(x = t, y = s)) +
-                  geom_line(linewidth = 1, color = "blue") +
-                  labs(title = title_text,
-                       x = "Time [T]",
-                       y = "Change in head s [L]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5))
-      } else {
-            # Plot s versus x at different times t if there are multiple x values
-            p <- ggplot(df, aes(x = x, y = s, color = factor(t))) +
-                  geom_line(linewidth = 1) +
-                  labs(title = title_text,
-                       x = "Distance from the river [L]",
-                       y = "Change in head s [L]",
-                       color = "Time [T]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        legend.text = element_text(size = 14),
-                        legend.title = element_text(size = 16, margin = margin(b = 20)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5),
-                        legend.box.background = element_rect(color = "black", size = 0.5))
-      }
-      
-      # Convert ggplot to plotly
+      p <- ggplot(df, aes(x = x, y = s, color = factor(t))) +
+            geom_line(linewidth = 1) +
+            labs(title = title_text,
+                 x = "Distance from the river [L]",
+                 y = "Change in head s [L]",
+                 color = "Time [T]") +
+            theme_minimal() +
+            theme(axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16, margin = margin(t = 30)),
+                  legend.text = element_text(size = 14),
+                  legend.title = element_text(size = 16, margin = margin(b = 20)),
+                  panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+                  legend.box.background = element_rect(color = "black", size = 0.5))
       plotly::ggplotly(p)
 }
 
@@ -133,7 +115,6 @@ plot_stress_response_s <- function(df) {
 #' @example plot_stress_response_q(df = result_calc_stress_response_n0)
 #' @return A ggplot object
 plot_stress_response_q <- function(df) {
-      # Generate the title text based on the type of stress change
       title_text <- switch(as.character(df$n[1]),
                            "0" = paste("Horizontal flux change q [L2/T]: River stage changes suddenly with a fixed value a=", df$a[1], "[L]"),
                            "1" = paste("Horizontal flux change q [L2/T]: Constant infiltration a=", df$a[1], "[L2/T] starts at x = 0"),
@@ -141,36 +122,19 @@ plot_stress_response_q <- function(df) {
                            "3" = paste("Horizontal flux change q [L2/T]: Infiltration at x = 0 increases at a constant rate a=", df$a[1], "[L2/T]"),
                            paste("Unknown stress change"))
       
-      # Check the number of unique x values
-      if (length(unique(df$x)) == 1) {
-            # Plot q versus t if there is only one unique x value
-            p <- ggplot(df, aes(x = t, y = q)) +
-                  geom_line(linewidth = 1, color = "blue") +
-                  labs(title = title_text,
-                       x = "Time [T]",
-                       y = "Horizontal flux change q [L2/T]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5))
-      } else {
-            # Plot q versus x at different times t if there are multiple x values
-            p <- ggplot(df, aes(x = x, y = q, color = factor(t))) +
-                  geom_line(linewidth = 1) +
-                  labs(title = title_text,
-                       x = "Distance from the river [L]",
-                       y = "Horizontal flux change q [L2/T]",
-                       color = "Time [T]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        legend.text = element_text(size = 14),
-                        legend.title = element_text(size = 16, margin = margin(b = 20)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5),
-                        legend.box.background = element_rect(color = "black", size = 0.5))
-      }
-      
-      # Convert ggplot to plotly
+      p <- ggplot(df, aes(x = x, y = q, color = factor(t))) +
+            geom_line(linewidth = 1) +
+            labs(title = title_text,
+                 x = "Distance from the river [L]",
+                 y = "Horizontal flux change q [L2/T]",
+                 color = "Time [T]") +
+            theme_minimal() +
+            theme(axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16, margin = margin(t = 30)),
+                  legend.text = element_text(size = 14),
+                  legend.title = element_text(size = 16, margin = margin(b = 20)),
+                  panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+                  legend.box.background = element_rect(color = "black", size = 0.5))
       plotly::ggplotly(p)
 }
 
