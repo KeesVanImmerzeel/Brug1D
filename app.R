@@ -178,10 +178,10 @@ plot_stress_response_q <- function(df) {
 ui <- fluidPage(
       titlePanel("Stress Response Plot"),
       tabsetPanel(
-            tabPanel("Control",
+            tabPanel("System",
                      sidebarLayout(
                            sidebarPanel(
-                                 actionButton("plot_button", "Refresh results and plots", class = "btn-warning"),
+
                                  radioButtons("n", "Type of stress change:",
                                               choices = list("0: River stage changes suddenly with a fixed value 'a' [L]" = 0,
                                                              "1: Constant infiltration 'a' starts at x = 0 [L2/T]" = 1,
@@ -190,39 +190,53 @@ ui <- fluidPage(
                                  numericInput("a", "Value of a:", 5),
                                  numericInput("kD", "Hydraulic conductivity kD [L2/T]:", 250),
                                  numericInput("S", "Storage coefficient S [-]:", 0.15),
-                                 numericInput("num_points_x", "Number of points in x-array:", 100),
-                                 numericInput("min_x", "Minimum value of x:", 0),
-                                 numericInput("max_x", "Maximum value of x:", 1000),
-                                 numericInput("num_points_t", "Number of points in t-array:", 10),
-                                 numericInput("min_t", "Minimum value of t:", 1),
-                                 numericInput("max_t", "Maximum value of t:", 100),
                                  bsTooltip("kD", "Must be greater than 1", "top", options = list(container = "body")),
                                  bsTooltip("S", "Must be greater than 0.0001 and less than 1", "top", options = list(container = "body")),
-                                 bsTooltip("num_points_x", "Must be greater than 0", "top", options = list(container = "body")),
-                                 bsTooltip("num_points_t", "Must be greater than 0", "top", options = list(container = "body")),
-                                 bsTooltip("min_x", "Must be greater than or equal to 0", "top", options = list(container = "body")),
-                                 bsTooltip("max_x", "Must be greater than min_x", "top", options = list(container = "body")),
-                                 bsTooltip("min_t", "Must be greater than or equal to 1", "top", options = list(container = "body")),
                                  downloadButton("downloadData", "Download input data"),
                                  fileInput("uploadData", "Upload input data", accept = c(".csv")),
                                  tags$a(href = "https://github.com/KeesVanImmerzeel/Brug1D/tree/master", "Documentation")
                            ),
                            mainPanel(
-                                 plotly::plotlyOutput("stressPlotS"),
-                                 plotly::plotlyOutput("stressPlotQ")
+
                            )
                      )
             ),
-            tabPanel("Results",
-                     tableOutput("resultsTable"),
-                     downloadButton("downloadResults", "Download Results")
-            )
+           # tabPanel("Results",
+      #               downloadButton("downloadResults", "Download Results"),
+       #              tableOutput("resultsTable")
+       #     )
+             tabPanel("System Plots", tabsetPanel(
+                      tabPanel("x, result",sidebarLayout(sidebarPanel( actionButton("plot_button", "Refresh", class = "btn-warning"),
+                                                                       br(), br(),
+                                                                       numericInput("num_points_x", "Number of points in x-array:", value=100, min=1),
+                                                                       numericInput("min_x", "Minimum value of x:", value=1, min=0),
+                                                                       numericInput("max_x", "Maximum value of x:", value=1000, min=0),
+                                                                       numericInput("num_points_t", "Number of points in t-array:", value=5, min=1, max=10),
+                                                                       numericInput("min_t", "Minimum value of t:", value=1, min=0),
+                                                                       numericInput("max_t", "Maximum value of t:", value=1000, min=0),
+                                                                       bsTooltip("num_points_x", "value >= 1", "top", options = list(container = "body")),
+                                                                       bsTooltip("num_points_t", "1 <= value <= 10", "top", options = list(container = "body")),
+                                                                       bsTooltip("min_x", "value >= 0", "top", options = list(container = "body")),
+                                                                       bsTooltip("max_x", "value > min_x", "top", options = list(container = "body")),
+                                                                       bsTooltip("min_t", "value >= 0", "top", options = list(container = "body")),
+                                                                       bsTooltip("max_t", "value >= min_t", "top", options = list(container = "body")),
+                                                                       br(), 
+                                                                       downloadButton("downloadResults", "Download Results")
+                                                                       
+                      ),mainPanel(                                 plotly::plotlyOutput("stressPlotS"), br(),
+                                                                   br(),
+                                                                   plotly::plotlyOutput("stressPlotQ"), br(),
+                                                                   br(),
+                                                                   tableOutput("resultsTable")
+                                                                   ))),
+                      tabPanel("t, result",sidebarLayout(sidebarPanel(),mainPanel()))))
       )
 )
 
 # Define server logic for the Shiny app
 server <- function(input, output, session) {
       result <- reactiveVal()
+      result_plot <- reactiveVal()
       
       observeEvent(input$plot_button, {
             x_values <- seq(input$min_x, input$max_x, length.out = input$num_points_x)
@@ -230,12 +244,19 @@ server <- function(input, output, session) {
             
             result(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
             
+            #if (input$num_points_t > 6) {
+            t_val <- seq(input$min_t, input$max_t, length.out = max(input$num_points_t,6))
+            result_plot(calc_stress_response(x = x_values, t = t_val, S = input$S, kD = input$kD, n = input$n, a = input$a))
+            #} else {
+            #      result_plot <- result()
+            #}
+            
             output$stressPlotS <- renderPlotly({
-                  plot_stress_response_s(result())
+                  plot_stress_response_s(result_plot())
             })
             
             output$stressPlotQ <- renderPlotly({
-                  plot_stress_response_q(result())
+                  plot_stress_response_q(result_plot())
             })
             
             output$resultsTable <- renderTable({
