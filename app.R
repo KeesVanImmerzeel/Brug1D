@@ -80,96 +80,187 @@ calc_stress_response <- function(x, t, S, kD, n, a) {
             dplyr::select(x, t, s, q, n, a)
 }
 
-#' Plot the change in head s [L] for different time points t
+#' Generate the title text for graph based on the type of stress change.
+#' 
+#' @param item: item description 
+#' @param n: Type of stress change (0, 1, 2 or 3)
+#' @param a: Constant in the definition of the stress [L] or [L2/T]
+make_title_text <- function(item="Change in head s [L]:",n, a) {
+      title_text <- switch(
+            as.character(n),
+            "0" = paste(item,
+                  "River stage changes suddenly with a fixed value a=",
+                  a,
+                  "[L]"
+            ),
+            "1" = paste(item,
+                  "Constant infiltration a=",
+                  a,
+                  "[L2/T] starts at x = 0"
+            ),
+            "2" = paste(item,
+                  "River stage rises at a constant rate a=",
+                  a,
+                  "[L/T]"
+            ),
+            "3" = paste(item,
+                  "Infiltration at x = 0 increases at a constant rate a=",
+                  a,
+                  "[L2/T]"
+            ),
+            paste("Unknown stress change")
+      )
+      return(title_text)
+}
+
+#' Plot the change in head s [L] as a function of distance x [L] for different time points t
 #'
 #' @param df Dataframe with the results of calc_stress_response
-#' @example plot_stress_response_s(df = result_calc_stress_response_n0)
 #' @return A ggplot object
-plot_stress_response_s <- function(df) {
+plot_stress_response_x_s <- function(df) {
       # Generate the title text based on the type of stress change
-      title_text <- switch(as.character(df$n[1]),
-                           "0" = paste("Change in head s: River stage changes suddenly with a fixed value a=", df$a[1], "[L]"),
-                           "1" = paste("Change in head s: Constant infiltration a=", df$a[1], "[L2/T] starts at x = 0"),
-                           "2" = paste("Change in head s: River stage rises at a constant rate a=", df$a[1], "[L/T]"),
-                           "3" = paste("Change in head s: Infiltration at x = 0 increases at a constant rate a=", df$a[1], "[L2/T]"),
-                           paste("Unknown stress change"))
-      
-      # Check the number of unique x values
-      if (length(unique(df$x)) == 1) {
-            # Plot s versus t if there is only one unique x value
-            p <- ggplot(df, aes(x = t, y = s)) +
-                  geom_line(linewidth = 1, color = "blue") +
-                  labs(title = title_text,
-                       x = "Time [T]",
-                       y = "Change in head s [L]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5))
-      } else {
-            # Plot s versus x at different times t if there are multiple x values
-            p <- ggplot(df, aes(x = x, y = s, color = factor(t))) +
-                  geom_line(linewidth = 1) +
-                  labs(title = title_text,
-                       x = "Distance from the river [L]",
-                       y = "Change in head s [L]",
-                       color = "Time [T]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        legend.text = element_text(size = 14),
-                        legend.title = element_text(size = 16, margin = margin(b = 20)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5),
-                        legend.box.background = element_rect(color = "black", size = 0.5))
-      }
-      
+      title_text <- make_title_text(n = df$n[1], a = df$a[1])
+      p <- ggplot(df, aes(
+            x = x,
+            y = s,
+            color = factor(t)
+      )) +
+            geom_line(linewidth = 1) +
+            labs(
+                  title = title_text,
+                  x = "Distance from the river [L]",
+                  y = "Change in head s [L]",
+                  color = "Time [T]"
+            ) +
+            theme_minimal() +
+            theme(
+                  axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16, margin = margin(t = 30)),
+                  legend.text = element_text(size = 14),
+                  legend.title = element_text(size = 16, margin = margin(b = 20)),
+                  panel.border = element_rect(
+                        color = "black",
+                        fill = NA,
+                        size = 0.5
+                  ),
+                  legend.box.background = element_rect(color = "black", size = 0.5)
+            )
       # Convert ggplot to plotly
       plotly::ggplotly(p)
 }
 
-#' Plot the horizontal flux change q [L2/T] for different time points t
+#' Plot the horizontal flux change q [L2/T] as a function of distance x [L] for different time points t
 #'
 #' @param df Dataframe with the results of calc_stress_response
-#' @example plot_stress_response_q(df = result_calc_stress_response_n0)
 #' @return A ggplot object
-plot_stress_response_q <- function(df) {
+plot_stress_response_x_q <- function(df) {
       # Generate the title text based on the type of stress change
-      title_text <- switch(as.character(df$n[1]),
-                           "0" = paste("Horizontal flux change q [L2/T]: River stage changes suddenly with a fixed value a=", df$a[1], "[L]"),
-                           "1" = paste("Horizontal flux change q [L2/T]: Constant infiltration a=", df$a[1], "[L2/T] starts at x = 0"),
-                           "2" = paste("Horizontal flux change q [L2/T]: River stage rises at a constant rate a=", df$a[1], "[L/T]"),
-                           "3" = paste("Horizontal flux change q [L2/T]: Infiltration at x = 0 increases at a constant rate a=", df$a[1], "[L2/T]"),
-                           paste("Unknown stress change"))
+      title_text <- make_title_text(item = "Horizontal flux change q [L2/T]:",
+                                    n = df$n[1],
+                                    a = df$a[1])
       
-      # Check the number of unique x values
-      if (length(unique(df$x)) == 1) {
-            # Plot q versus t if there is only one unique x value
-            p <- ggplot(df, aes(x = t, y = q)) +
-                  geom_line(linewidth = 1, color = "blue") +
-                  labs(title = title_text,
-                       x = "Time [T]",
-                       y = "Horizontal flux change q [L2/T]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5))
-      } else {
-            # Plot q versus x at different times t if there are multiple x values
-            p <- ggplot(df, aes(x = x, y = q, color = factor(t))) +
-                  geom_line(linewidth = 1) +
-                  labs(title = title_text,
-                       x = "Distance from the river [L]",
-                       y = "Horizontal flux change q [L2/T]",
-                       color = "Time [T]") +
-                  theme_minimal() +
-                  theme(axis.text = element_text(size = 14),
-                        axis.title = element_text(size = 16, margin = margin(t = 30)),
-                        legend.text = element_text(size = 14),
-                        legend.title = element_text(size = 16, margin = margin(b = 20)),
-                        panel.border = element_rect(color = "black", fill = NA, size = 0.5),
-                        legend.box.background = element_rect(color = "black", size = 0.5))
-      }
+      # Plot q versus x at different times t if there are multiple x values
+      p <- ggplot(df, aes(
+            x = x,
+            y = q,
+            color = factor(t)
+      )) +
+            geom_line(linewidth = 1) +
+            labs(
+                  title = title_text,
+                  x = "Distance from the river [L]",
+                  y = "Horizontal flux change q [L2/T]",
+                  color = "Time [T]"
+            ) +
+            theme_minimal() +
+            theme(
+                  axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16, margin = margin(t = 30)),
+                  legend.text = element_text(size = 14),
+                  legend.title = element_text(size = 16, margin = margin(b = 20)),
+                  panel.border = element_rect(
+                        color = "black",
+                        fill = NA,
+                        size = 0.5
+                  ),
+                  legend.box.background = element_rect(color = "black", size = 0.5)
+            )
+      # Convert ggplot to plotly
+      plotly::ggplotly(p)
+}
+
+#' Plot the change in head s [L] as a function of time t [T] at different distances x [L]
+#'
+#' @param df Dataframe with the results of calc_stress_response
+#' @return A ggplot object
+plot_stress_response_t_s <- function(df) {
+      # Generate the title text based on the type of stress change
+      title_text <- make_title_text(n = df$n[1], a = df$a[1])
+      p <- ggplot(df, aes(
+            x = t,
+            y = s,
+            color = factor(x)
+      )) +
+            geom_line(linewidth = 1) +
+            labs(
+                  title = title_text,
+                  x = "Time [T]",
+                  y = "Change in head s [L]",
+                  color = "Distance from the river [L]"
+            ) +
+            theme_minimal() +
+            theme(
+                  axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16, margin = margin(t = 30)),
+                  legend.text = element_text(size = 14),
+                  legend.title = element_text(size = 16, margin = margin(b = 20)),
+                  panel.border = element_rect(
+                        color = "black",
+                        fill = NA,
+                        size = 0.5
+                  ),
+                  legend.box.background = element_rect(color = "black", size = 0.5)
+            )
+      # Convert ggplot to plotly
+      plotly::ggplotly(p)
+}
+
+#' Plot the horizontal flux change q [L2/T] as a function of time t [T] at different distances x [L]
+#'
+#' @param df Dataframe with the results of calc_stress_response
+#' @return A ggplot object
+plot_stress_response_t_q <- function(df) {
+      # Generate the title text based on the type of stress change
+      title_text <- make_title_text(item = "Horizontal flux change q [L2/T]:",
+                                    n = df$n[1],
+                                    a = df$a[1])
       
+      # Plot q versus x at different times t if there are multiple x values
+      p <- ggplot(df, aes(
+            x = t,
+            y = q,
+            color = factor(x)
+      )) +
+            geom_line(linewidth = 1) +
+            labs(
+                  title = title_text,
+                  x = "Time [T]",
+                  y = "Horizontal flux change q [L2/T]",
+                  color = "Distance from the river [L]"
+            ) +
+            theme_minimal() +
+            theme(
+                  axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16, margin = margin(t = 30)),
+                  legend.text = element_text(size = 14),
+                  legend.title = element_text(size = 16, margin = margin(b = 20)),
+                  panel.border = element_rect(
+                        color = "black",
+                        fill = NA,
+                        size = 0.5
+                  ),
+                  legend.box.background = element_rect(color = "black", size = 0.5)
+            )
       # Convert ggplot to plotly
       plotly::ggplotly(p)
 }
@@ -181,7 +272,6 @@ ui <- fluidPage(
             tabPanel("System",
                      sidebarLayout(
                            sidebarPanel(
-
                                  radioButtons("n", "Type of stress change:",
                                               choices = list("0: River stage changes suddenly with a fixed value 'a' [L]" = 0,
                                                              "1: Constant infiltration 'a' starts at x = 0 [L2/T]" = 1,
@@ -197,76 +287,107 @@ ui <- fluidPage(
                                  tags$a(href = "https://github.com/KeesVanImmerzeel/Brug1D/tree/master", "Documentation")
                            ),
                            mainPanel(
-
+                                 
                            )
                      )
             ),
-           # tabPanel("Results",
-      #               downloadButton("downloadResults", "Download Results"),
-       #              tableOutput("resultsTable")
-       #     )
-             tabPanel("System Plots", tabsetPanel(
-                      tabPanel("x, result",sidebarLayout(sidebarPanel( actionButton("plot_button", "Refresh", class = "btn-warning"),
-                                                                       br(), br(),
-                                                                       numericInput("num_points_x", "Number of points in x-array:", value=100, min=1),
-                                                                       numericInput("min_x", "Minimum value of x:", value=1, min=0),
-                                                                       numericInput("max_x", "Maximum value of x:", value=1000, min=0),
-                                                                       numericInput("num_points_t", "Number of points in t-array:", value=5, min=1, max=10),
-                                                                       numericInput("min_t", "Minimum value of t:", value=1, min=0),
-                                                                       numericInput("max_t", "Maximum value of t:", value=1000, min=0),
-                                                                       bsTooltip("num_points_x", "value >= 1", "top", options = list(container = "body")),
-                                                                       bsTooltip("num_points_t", "1 <= value <= 10", "top", options = list(container = "body")),
-                                                                       bsTooltip("min_x", "value >= 0", "top", options = list(container = "body")),
-                                                                       bsTooltip("max_x", "value > min_x", "top", options = list(container = "body")),
-                                                                       bsTooltip("min_t", "value >= 0", "top", options = list(container = "body")),
-                                                                       bsTooltip("max_t", "value >= min_t", "top", options = list(container = "body")),
-                                                                       br(), 
-                                                                       downloadButton("downloadResults", "Download Results")
-                                                                       
-                      ),mainPanel(                                 plotly::plotlyOutput("stressPlotS"), br(),
-                                                                   br(),
-                                                                   plotly::plotlyOutput("stressPlotQ"), br(),
-                                                                   br(),
-                                                                   tableOutput("resultsTable")
-                                                                   ))),
-                      tabPanel("t, result",sidebarLayout(sidebarPanel(),mainPanel()))))
+            tabPanel("System Plots", tabsetPanel(
+                  tabPanel("x, result",
+                           sidebarLayout(
+                                 sidebarPanel(
+                                       actionButton("plot_button", "Refresh", class = "btn-warning"),
+                                       br(), br(),
+                                       numericInput("num_points_x", "Number of points in x-array:", value = 100, min = 1),
+                                       numericInput("min_x", "Minimum value of x:", value = 1, min = 0),
+                                       numericInput("max_x", "Maximum value of x:", value = 1000, min = 0),
+                                       numericInput("num_points_t", "Number of points in t-array:", value = 5, min = 1, max = 10),
+                                       numericInput("min_t", "Minimum value of t:", value = 1, min = 0),
+                                       numericInput("max_t", "Maximum value of t:", value = 1000, min = 0),
+                                       bsTooltip("num_points_x", "value >= 1", "top", options = list(container = "body")),
+                                       bsTooltip("num_points_t", "1 <= value <= 10", "top", options = list(container = "body")),
+                                       bsTooltip("min_x", "value >= 0", "top", options = list(container = "body")),
+                                       bsTooltip("max_x", "value > min_x", "top", options = list(container = "body")),
+                                       bsTooltip("min_t", "value >= 0", "top", options = list(container = "body")),
+                                       bsTooltip("max_t", "value >= min_t", "top", options = list(container = "body")),
+                                       br(),
+                                       downloadButton("downloadResults", "Download Results")
+                                 ),
+                                 mainPanel(
+                                       plotly::plotlyOutput("stressPlotS"), br(), br(),
+                                       plotly::plotlyOutput("stressPlotQ"), br(), br(),
+                                       tableOutput("resultsTable")
+                                 )
+                           )
+                  ),
+                  tabPanel("t, result",
+                           sidebarLayout(
+                                 sidebarPanel(
+                                       actionButton("plot_button_t", "Refresh", class = "btn-warning"),
+                                       br(), br(),
+                                       numericInput("num_points_x_t", "Number of points in x-array:", value = 6, min = 1, max=10),
+                                       numericInput("min_x_t", "Minimum value of x:", value = 0, min = 0),
+                                       numericInput("max_x_t", "Maximum value of x:", value = 1000, min = 0),
+                                       numericInput("num_points_t_t", "Number of points in t-array:", value = 100, min = 1),
+                                       numericInput("min_t_t", "Minimum value of t:", value = 1, min = 0),
+                                       numericInput("max_t_t", "Maximum value of t:", value = 1000, min = 0),
+                                       bsTooltip("num_points_x_t","1 <= value <= 10" , "top", options = list(container = "body")),
+                                       bsTooltip("num_points_t_t", "value >= 1", "top", options = list(container = "body")),
+                                       bsTooltip("min_x_t", "value >= 0", "top", options = list(container = "body")),
+                                       bsTooltip("max_x_t", "value > min_x_t", "top", options = list(container = "body")),
+                                       bsTooltip("min_t_t", "value >= 0", "top", options = list(container = "body")),
+                                       bsTooltip("max_t_t", "value >= min_t_t", "top", options = list(container = "body")),
+                                       br(),
+                                       downloadButton("downloadResults_t", "Download Time Plot Results")
+                                 ),
+                                 mainPanel(
+                                       plotly::plotlyOutput("stressPlotS_t"), br(), br(),
+                                       plotly::plotlyOutput("stressPlotQ_t"), br(), br(),
+                                       tableOutput("resultsTable_t")
+                                 )
+                           )
+                  )
+            ))
       )
 )
 
 # Define server logic for the Shiny app
 server <- function(input, output, session) {
-      result <- reactiveVal()
-      result_plot <- reactiveVal()
+      result_x <- reactiveVal()
+      result_t <- reactiveVal()
       
       observeEvent(input$plot_button, {
             x_values <- seq(input$min_x, input$max_x, length.out = input$num_points_x)
             t_values <- seq(input$min_t, input$max_t, length.out = input$num_points_t)
-            
-            result(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
-            
-            #if (input$num_points_t > 6) {
-            t_val <- seq(input$min_t, input$max_t, length.out = max(input$num_points_t,6))
-            result_plot(calc_stress_response(x = x_values, t = t_val, S = input$S, kD = input$kD, n = input$n, a = input$a))
-            #} else {
-            #      result_plot <- result()
-            #}
-            
+            result_x(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
             output$stressPlotS <- renderPlotly({
-                  plot_stress_response_s(result_plot())
+                  plot_stress_response_x_s(result_x())
             })
-            
             output$stressPlotQ <- renderPlotly({
-                  plot_stress_response_q(result_plot())
+                  plot_stress_response_x_q(result_x())
             })
-            
             output$resultsTable <- renderTable({
-                  result()
+                  result_x()
+            })
+      })
+      
+      observeEvent(input$plot_button_t, {
+            x_values <- seq(input$min_x_t, input$max_x_t, length.out = input$num_points_x_t)
+            t_values <- seq(input$min_t_t, input$max_t_t, length.out = input$num_points_t_t)
+            result_t(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
+            output$stressPlotS_t <- renderPlotly({
+                  plot_stress_response_t_s(result_t())
+            })
+            output$stressPlotQ_t <- renderPlotly({
+                  plot_stress_response_t_q(result_t())
+            })
+            output$resultsTable_t <- renderTable({
+                  result_t()
             })
       })
       
       output$downloadData <- downloadHandler(
             filename = function() {
-                  paste("input_data-", Sys.Date(), ".csv", sep = "")
+                  paste("Brug1D_input_data_", Sys.Date(), ".csv", sep = "")
             },
             content = function(file) {
                   input_data <- data.frame(
@@ -279,18 +400,33 @@ server <- function(input, output, session) {
                         max_x = input$max_x,
                         num_points_t = input$num_points_t,
                         min_t = input$min_t,
-                        max_t = input$max_t
+                        max_t = input$max_t,
+                        num_points_x_t = input$num_points_x_t,
+                        min_x_t = input$min_x_t,
+                        max_x_t = input$max_x_t,
+                        num_points_t_t = input$num_points_t_t,
+                        min_t_t = input$min_t_t,
+                        max_t_t = input$max_t_t
                   )
-                  write.csv2(input_data, file, quote=FALSE, row.names = FALSE)
+                  write.csv2(input_data, file, quote = FALSE, row.names = FALSE)
             }
       )
       
       output$downloadResults <- downloadHandler(
             filename = function() {
-                  paste("results-", Sys.Date(), ".csv", sep = "")
+                  paste("Brug1D_x_vs_results_", Sys.Date(), ".csv", sep = "")
             },
             content = function(file) {
-                  write.csv2(result(), file, quote=FALSE, row.names = FALSE)
+                  write.csv2(result_x(), file, quote = FALSE, row.names = FALSE)
+            }
+      )
+      
+      output$downloadResults_t <- downloadHandler(
+            filename = function() {
+                  paste("Brug1D_t_vs_results_", Sys.Date(), ".csv", sep = "")
+            },
+            content = function(file) {
+                  write.csv2(result_t(), file, quote = FALSE, row.names = FALSE)
             }
       )
       
@@ -307,6 +443,12 @@ server <- function(input, output, session) {
             updateNumericInput(session, "num_points_t", value = input_data$num_points_t)
             updateNumericInput(session, "min_t", value = input_data$min_t)
             updateNumericInput(session, "max_t", value = input_data$max_t)
+            updateNumericInput(session, "num_points_x_t", value = input_data$num_points_x_t)
+            updateNumericInput(session, "min_x_t", value = input_data$min_x_t)
+            updateNumericInput(session, "max_x_t", value = input_data$max_x_t)
+            updateNumericInput(session, "num_points_t_t", value = input_data$num_points_t_t)
+            updateNumericInput(session, "min_t_t", value = input_data$min_t_t)
+            updateNumericInput(session, "max_t_t", value = input_data$max_t_t)
       })
 }
 
