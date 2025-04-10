@@ -82,28 +82,27 @@ calc_stress_response <- function(x, t, S, kD, n, a) {
 
 #' Generate the title text for graph based on the type of stress change.
 #' 
-#' @param item: item description 
 #' @param n: Type of stress change (0, 1, 2 or 3)
 #' @param a: Constant in the definition of the stress [L] or [L2/T]
-make_title_text <- function(item="Change in head s [L]:",n, a) {
+make_title_text <- function(n, a) {
       title_text <- switch(
             as.character(n),
-            "0" = paste(item,
+            "0" = paste(
                   "River stage changes suddenly with a fixed value a=",
                   a,
                   "[L]"
             ),
-            "1" = paste(item,
+            "1" = paste(
                   "Constant infiltration a=",
                   a,
                   "[L2/T] starts at x = 0"
             ),
-            "2" = paste(item,
+            "2" = paste(
                   "River stage rises at a constant rate a=",
                   a,
                   "[L/T]"
             ),
-            "3" = paste(item,
+            "3" = paste(
                   "Infiltration at x = 0 increases at a constant rate a=",
                   a,
                   "[L2/T]"
@@ -155,8 +154,7 @@ plot_stress_response_x_s <- function(df) {
 #' @return A ggplot object
 plot_stress_response_x_q <- function(df) {
       # Generate the title text based on the type of stress change
-      title_text <- make_title_text(item = "Horizontal flux change q [L2/T]:",
-                                    n = df$n[1],
+      title_text <- make_title_text(n = df$n[1],
                                     a = df$a[1])
       
       # Plot q versus x at different times t if there are multiple x values
@@ -231,8 +229,7 @@ plot_stress_response_t_s <- function(df) {
 #' @return A ggplot object
 plot_stress_response_t_q <- function(df) {
       # Generate the title text based on the type of stress change
-      title_text <- make_title_text(item = "Horizontal flux change q [L2/T]:",
-                                    n = df$n[1],
+      title_text <- make_title_text(n = df$n[1],
                                     a = df$a[1])
       
       # Plot q versus x at different times t if there are multiple x values
@@ -272,17 +269,17 @@ ui <- fluidPage(
             tabPanel("System",
                      sidebarLayout(
                            sidebarPanel(
-                                 radioButtons("n", "Type of stress change:",
+                                 radioButtons("n", "Type of stress:",
                                               choices = list("0: River stage changes suddenly with a fixed value 'a' [L]" = 0,
                                                              "1: Constant infiltration 'a' starts at x = 0 [L2/T]" = 1,
-                                                             "2: River stage rises at a constant rate 'a' [L/T]" = 2,
-                                                             "3: Infiltration at x = 0 increases at a constant rate 'a' [L2/T]" = 3)),
-                                 numericInput("a", "Value of a:", 5),
-                                 numericInput("kD", "Hydraulic conductivity kD [L2/T]:", 250),
-                                 numericInput("S", "Storage coefficient S [-]:", 0.15),
-                                 bsTooltip("kD", "Must be greater than 1", "top", options = list(container = "body")),
-                                 bsTooltip("S", "Must be greater than 0.0001 and less than 1", "top", options = list(container = "body")),
-                                 downloadButton("downloadData", "Download input data"),
+                                                             "2: River stage rises at a constant rate 'a' [L/T]" = 1,
+                                                             "3: Infiltration at x = 0 increases at a constant rate 'a' [L2/T]" = 1)),
+                                 numericInput("a", "Value of 'a' ([L] or [L2/T]):", 1),
+                                 numericInput("kD", "Hydraulic conductivity kD [L2/T]:", value=250, min=0.001),
+                                 numericInput("S", "Storage coefficient S [-]:", value=0.15, min=0.00001, max=1),
+                                 bsTooltip("kD", "value > 0 [L2/T]", "top", options = list(container = "body")),
+                                 bsTooltip("S", "0.00001 < value <= 1", "top", options = list(container = "body")),
+                                 downloadButton("downloadData", "Download input data"), br(), br(),
                                  fileInput("uploadData", "Upload input data", accept = c(".csv")),
                                  tags$a(href = "https://github.com/KeesVanImmerzeel/Brug1D/tree/master", "Documentation")
                            ),
@@ -301,13 +298,13 @@ ui <- fluidPage(
                                        numericInput("min_x", "Minimum value of x:", value = 1, min = 0),
                                        numericInput("max_x", "Maximum value of x:", value = 1000, min = 0),
                                        numericInput("num_points_t", "Number of points in t-array:", value = 5, min = 1, max = 10),
-                                       numericInput("min_t", "Minimum value of t:", value = 1, min = 0),
+                                       numericInput("min_t", "Minimum value of t:", value = 1, min = 0.001),
                                        numericInput("max_t", "Maximum value of t:", value = 1000, min = 0),
                                        bsTooltip("num_points_x", "value >= 1", "top", options = list(container = "body")),
                                        bsTooltip("num_points_t", "1 <= value <= 10", "top", options = list(container = "body")),
                                        bsTooltip("min_x", "value >= 0", "top", options = list(container = "body")),
                                        bsTooltip("max_x", "value > min_x", "top", options = list(container = "body")),
-                                       bsTooltip("min_t", "value >= 0", "top", options = list(container = "body")),
+                                       bsTooltip("min_t", "value > 0", "top", options = list(container = "body")),
                                        bsTooltip("max_t", "value >= min_t", "top", options = list(container = "body")),
                                        br(),
                                        downloadButton("downloadResults", "Download Results")
@@ -328,16 +325,16 @@ ui <- fluidPage(
                                        numericInput("min_x_t", "Minimum value of x:", value = 0, min = 0),
                                        numericInput("max_x_t", "Maximum value of x:", value = 1000, min = 0),
                                        numericInput("num_points_t_t", "Number of points in t-array:", value = 100, min = 1),
-                                       numericInput("min_t_t", "Minimum value of t:", value = 1, min = 0),
+                                       numericInput("min_t_t", "Minimum value of t:", value = 1, min = 0.001),
                                        numericInput("max_t_t", "Maximum value of t:", value = 1000, min = 0),
                                        bsTooltip("num_points_x_t","1 <= value <= 10" , "top", options = list(container = "body")),
                                        bsTooltip("num_points_t_t", "value >= 1", "top", options = list(container = "body")),
-                                       bsTooltip("min_x_t", "value >= 0", "top", options = list(container = "body")),
+                                       bsTooltip("min_x_t", "value > 0", "top", options = list(container = "body")),
                                        bsTooltip("max_x_t", "value > min_x_t", "top", options = list(container = "body")),
                                        bsTooltip("min_t_t", "value >= 0", "top", options = list(container = "body")),
                                        bsTooltip("max_t_t", "value >= min_t_t", "top", options = list(container = "body")),
                                        br(),
-                                       downloadButton("downloadResults_t", "Download Time Plot Results")
+                                       downloadButton("downloadResults_t", "Download Results")
                                  ),
                                  mainPanel(
                                        plotly::plotlyOutput("stressPlotS_t"), br(), br(),
@@ -357,7 +354,8 @@ server <- function(input, output, session) {
       
       observeEvent(input$plot_button, {
             x_values <- seq(input$min_x, input$max_x, length.out = input$num_points_x)
-            t_values <- seq(input$min_t, input$max_t, length.out = input$num_points_t)
+            #t_values <- seq(input$min_t, input$max_t, length.out = input$num_points_t)
+            t_values <- round(pracma::logseq(input$min_t, input$max_t, input$num_points_t),1)
             result_x(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
             output$stressPlotS <- renderPlotly({
                   plot_stress_response_x_s(result_x())
@@ -373,6 +371,7 @@ server <- function(input, output, session) {
       observeEvent(input$plot_button_t, {
             x_values <- seq(input$min_x_t, input$max_x_t, length.out = input$num_points_x_t)
             t_values <- seq(input$min_t_t, input$max_t_t, length.out = input$num_points_t_t)
+            
             result_t(calc_stress_response(x = x_values, t = t_values, S = input$S, kD = input$kD, n = input$n, a = input$a))
             output$stressPlotS_t <- renderPlotly({
                   plot_stress_response_t_s(result_t())
