@@ -2,14 +2,16 @@
 
 C.H. van Immerzeel
 
-18/3/2025
+24/4/2025
 
 Simulate time-dependent head and flow in a semi-infinite aquifer adjacent to 
-open water where the boundary condition changes from t = 0 according to a 
+open water (for example a river), where the boundary condition changes from t = 0 according to a 
 specified course.
 
 The equation used describes one-dimensional flow for a situation with 
 spatially constant kD and S, without recharge (precipitation, evaporation, leakage).
+
+The response to a sequence of stress values (a) may be studied.
 
 
 
@@ -24,6 +26,9 @@ spatially constant kD and S, without recharge (precipitation, evaporation, leaka
 R-source code of the app:
 
 <https://github.com/KeesVanImmerzeel/Brug1D>
+
+## Simulation
+A sequence of stress values (a) may be uploaded. For this purpuse, prepare a spreadsheet with two columns ('Time' and 'a').  
 
 
 ## Numerical stability
