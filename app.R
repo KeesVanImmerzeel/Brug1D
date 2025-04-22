@@ -574,18 +574,34 @@ server <- function(input, output, session) {
                         a = input$a,
                         kD = input$kD,
                         S = input$S,
+                        
                         num_points_x = input$num_points_x,
                         min_x = input$min_x,
                         max_x = input$max_x,
                         num_points_t = input$num_points_t,
                         min_t = input$min_t,
                         max_t = input$max_t,
+                        
                         num_points_x_t = input$num_points_x_t,
                         min_x_t = input$min_x_t,
                         max_x_t = input$max_x_t,
                         num_points_t_t = input$num_points_t_t,
                         min_t_t = input$min_t_t,
-                        max_t_t = input$max_t_t
+                        max_t_t = input$max_t_t,
+                        
+                        sim_num_points_x = input$sim_num_points_x,
+                        sim_min_x = input$sim_min_x,
+                        sim_max_x = input$sim_max_x,
+                        sim_num_points_t = input$sim_num_points_t,
+                        sim_min_t = input$sim_min_t,
+                        sim_max_t = input$sim_max_t,
+                        
+                        sim_num_points_x_t = input$sim_num_points_x_t,
+                        sim_min_x_t = input$sim_min_x_t,
+                        sim_max_x_t = input$sim_max_x_t,
+                        sim_num_points_t_t = input$sim_num_points_t_t,
+                        sim_min_t_t = input$sim_min_t_t,
+                        sim_max_t_t = input$sim_max_t_t
                   )
                   write.csv2(input_data, file, quote = FALSE, row.names = FALSE)
             }
@@ -634,18 +650,35 @@ server <- function(input, output, session) {
             updateNumericInput(session, "a", value = input_data$a)
             updateNumericInput(session, "kD", value = input_data$kD)
             updateNumericInput(session, "S", value = input_data$S)
+            
             updateNumericInput(session, "num_points_x", value = input_data$num_points_x)
             updateNumericInput(session, "min_x", value = input_data$min_x)
             updateNumericInput(session, "max_x", value = input_data$max_x)
             updateNumericInput(session, "num_points_t", value = input_data$num_points_t)
             updateNumericInput(session, "min_t", value = input_data$min_t)
             updateNumericInput(session, "max_t", value = input_data$max_t)
+            
             updateNumericInput(session, "num_points_x_t", value = input_data$num_points_x_t)
             updateNumericInput(session, "min_x_t", value = input_data$min_x_t)
             updateNumericInput(session, "max_x_t", value = input_data$max_x_t)
             updateNumericInput(session, "num_points_t_t", value = input_data$num_points_t_t)
             updateNumericInput(session, "min_t_t", value = input_data$min_t_t)
             updateNumericInput(session, "max_t_t", value = input_data$max_t_t)
+            
+            updateNumericInput(session, "sim_num_points_x", value = input_data$sim_num_points_x)
+            updateNumericInput(session, "sim_min_x", value = input_data$sim_min_x)
+            updateNumericInput(session, "sim_max_x", value = input_data$sim_max_x)
+            updateNumericInput(session, "sim_num_points_t", value = input_data$sim_num_points_t)
+            updateNumericInput(session, "sim_min_t", value = input_data$sim_min_t)
+            updateNumericInput(session, "sim_max_t", value = input_data$sim_max_t)
+            
+            updateNumericInput(session, "sim_num_points_x_t", value = input_data$sim_num_points_x_t)
+            updateNumericInput(session, "sim_min_x_t", value = input_data$sim_min_x_t)
+            updateNumericInput(session, "sim_max_x_t", value = input_data$sim_max_x_t)
+            updateNumericInput(session, "sim_num_points_t_t", value = input_data$sim_num_points_t_t)
+            updateNumericInput(session, "sim_min_t_t", value = input_data$sim_min_t_t)
+            updateNumericInput(session, "sim_max_t_t", value = input_data$sim_max_t_t)
+            
       })
       
       ######### Simulate in- and output
