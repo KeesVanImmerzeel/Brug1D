@@ -43,7 +43,7 @@ ierfc <- function(z, n) {
       }
 }
 
-#' Calculate the change in head s [L] and the horizontal flux change q [L2/T] at distance x and time t due to a stress change a at t=0 at x=0
+#' Calculate the Head change s [L] and the horizontal flux change q [L2/T] at distance x and time t due to a stress change a at t=0 at x=0
 #'
 #' @param x Distance [L]
 #' @param t Time [T]
@@ -139,6 +139,7 @@ distance_stress_period <- function(x, t, t_a) {
 simulate_stress_response <- function(x, t, S, kD, n, t_a) {
       t_a <- t_a[order(t_a$t), ] # Order on time t
       t_a <- t_a[c(TRUE, diff(t_a$a) != 0), ] # Remove duplicates
+      t_a$a[2:nrow(t_a)] <- diff(t_a$a) # Calculate differences
       df <- distance_stress_period(x, t, t_a)
       df_stress_response <- data.frame(b = mapply(calc_stress_response, x=df$x, t=df$dt, a=df$a, MoreArgs = list(S = S, kD = kD, n = n))) |>
             t() |> as.data.frame() |> dplyr::rename(dt = t)
@@ -194,7 +195,7 @@ make_title_text <- function(n, a) {
       return(title_text)
 }
 
-#' Plot the change in head s [L] as a function of distance x [L] for different time points t
+#' Plot the Head change s [L] as a function of distance x [L] for different time points t
 #'
 #' @param df Dataframe with the results of calc_stress_response
 #' @return A ggplot object
@@ -215,7 +216,7 @@ plot_stress_response_x_s <- function(df) {
             labs(
                   title = title_text,
                   x = "Distance [L]",
-                  y = "Change in head s [L]",
+                  y = "Head change s [L]",
                   color = "Time [T]"
             ) +
             theme_minimal() +
@@ -278,7 +279,7 @@ plot_stress_response_x_q <- function(df) {
       plotly::ggplotly(p)
 }
 
-#' Plot the change in head s [L] as a function of time t [T] at different distances x [L]
+#' Plot the Head change s [L] as a function of time t [T] at different distances x [L]
 #'
 #' @param df Dataframe with the results of calc_stress_response
 #' @return A ggplot object
@@ -309,7 +310,7 @@ plot_stress_response_t_s <- function(df, t_a=NULL) {
             labs(
                   title = title_text,
                   x = "Time [T]",
-                  y = "Change in head s [L]",
+                  y = "Head change s [L]",
                   color = "Distance [L]"
             ) +
             theme_minimal() +
@@ -713,7 +714,7 @@ server <- function(input, output, session) {
             ylab <- paste( "a", unit_str <- make_unit_text_of_a( input$n ))
             p <- ggplot(df, aes(x = Time_value, y = a)) +
                   geom_step(linewidth = 1) +
-                  labs(title = "Stress Sequence Plot", x = "Time [T]", y = ylab) +
+                  labs(title = "Stress Sequence", x = "Time [T]", y = ylab) +
                   theme(
                         axis.text = element_text(size = 14),
                         axis.title = element_text(size = 16, margin = margin(t = 30)),
